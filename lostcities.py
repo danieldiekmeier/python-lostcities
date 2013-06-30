@@ -27,7 +27,7 @@ class Player:
 		return self.__str__()
 	def __str__(self):
 		return str(self.score)+' points'
-	def showCards(self):
+	def show_cards(self):
 		return self.cards
 	def score(self):
 		return self.board.score()
@@ -64,7 +64,7 @@ class Column:
 	def __repr__(self):
 		return self.__str__()
 	def __str__(self):
-		return str(self.value())+' points'
+		return str(self.value()) + ' points'
 	def value(self):
 		multiplicator = 1
 		cards_value = 0
@@ -100,8 +100,8 @@ shuffle(deck)
 user = Player()
 computer = Player()
 
-print user.showCards()
-print computer.showCards()
+print user.show_cards()
+print computer.show_cards()
 
 print user.score()
 
