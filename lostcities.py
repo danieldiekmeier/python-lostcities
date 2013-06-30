@@ -110,3 +110,18 @@ print players[0].score()
 players[0].put(players[0].cards.pop(0))
 
 print players[0].score()
+
+current_player = choice(players)
+
+while len(deck):
+	# THE GAME
+
+	# ENTSCHEIDEN, WAS GELEGT WIRD
+
+	# ENTSCHEIDEN, WAS GEZOGEN WIRD
+
+	# ANDERER SPIELER IST DRAN
+	if current_player == players[0]:
+		current_player = players[1]
+	else:
+		current_player = players[0]
