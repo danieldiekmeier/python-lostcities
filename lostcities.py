@@ -2,6 +2,9 @@
 
 from random import choice, shuffle
 
+import lcinput as player1
+import lcinput as player2
+
 # CONFIG
 
 colors = ['yellow', 'blue', 'white', 'green', 'red']
@@ -97,14 +100,13 @@ for color in colors:
 shuffle(deck)
 
 # CREATE THE TWO PLAYERS WITH THE DECK
-user = Player()
-computer = Player()
+players = (Player(), Player())
 
-print user.show_cards()
-print computer.show_cards()
+print players[0].show_cards()
+print players[1].show_cards()
 
-print user.score()
+print players[0].score()
 
-user.put(user.cards.pop(0))
+players[0].put(players[0].cards.pop(0))
 
-print user.score()
+print players[0].score()
