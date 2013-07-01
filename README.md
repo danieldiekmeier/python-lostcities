@@ -13,7 +13,8 @@ returns location, color and number of card as dictionary
 
 ## .draw(status())
 ### location:
-	0: board
+	0: deck
 	1: discard pile
 ### color:
 	the color of the discard pile from which to take
+	this will be ignored if location=0
