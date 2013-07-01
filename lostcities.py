@@ -8,7 +8,12 @@ from danielai1 import Player as Player1
 
 # CONFIG
 
-colors = ['yellow', 'blue', 'white', 'green', 'red']
+COLORS = ('yellow', 'blue', 'white', 'green', 'red')
+
+NUMBERS = [1, 1]
+NUMBERS.extend(range(1,11))
+MULTIPLICATOR_NUMBER = 1
+
 
 class Card:
 	def __init__(self, color, number):
@@ -17,32 +22,28 @@ class Card:
 	def __repr__(self):
 		return self.__str__()
 	def __str__(self):
-		if self.number == 1:
+		if self.number == MULTIPLICATOR_NUMBER:
 			return self.color + ' multiplicator'
-		return self.color + ' ' +str(self.number)
+		return self.color + ' ' + str(self.number)
 
 class Player:
-	def __init__(self, player_number):
+	def __init__(self, brain):
 		self.cards = []
 		for n in xrange(0,8):
 			self.draw()
 		self.board = Board()
-		if player_number == 0:
-			self.brain = Player0()
-		else:
-			self.brain = Player1()
+		self.brain = brain
 	def __repr__(self):
 		return self.__str__()
 	def __str__(self):
 		return str(self.score) + ' points'
 	def show_cards(self):
 		cards = dict()
-		for color in colors:
+		for color in COLORS:
 			cards[color] = []
 		for card in self.cards:
 			cards[card.color].append(card.number)
 		for key in cards:
-
 			if cards[key] == []:
 				cards[key] = None
 		return cards
@@ -62,7 +63,7 @@ class Player:
 class Board:
 	def __init__(self):
 		self.columns = []
-		for color in colors:
+		for color in COLORS:
 			self.columns.append(Column(color))
 	def __repr__(self):
 		return self.__str__()
@@ -103,7 +104,7 @@ class Column:
 		multiplicator = 1
 		cards_value = 0
 		for card in self.cards:
-			if card.number == 1:
+			if card.number == MULTIPLICATOR_NUMBER:
 				multiplicator += 1
 			else:
 				cards_value += card.number
@@ -118,7 +119,7 @@ class Column:
 class DiscardPile:
 	def __init__(self):
 		self.stacks = []
-		for color in colors:
+		for color in COLORS:
 			self.stacks.append(Stack(color))
 	def __repr__(self):
 		return self.__str__()
@@ -156,38 +157,27 @@ class Stack:
 	def put(self, card):
 		self.cards.append(card)
 	def peek(self):
-		if len(self.cards):
-			return self.cards[-1]
-		else:
-			return None
+		return self.cards[-1] if len(self.cards) else None
 	def show(self):
-		if len(self.cards):
-			return self.cards[-1].number
-		else:
-			return None
+		return self.cards[-1].number if len(self.cards) else None
 
 def status():
 	not_current_player = players[1] if current_player == players[0] else players[0]
-	return {'cards': current_player.show_cards(), 'board': current_player.board.show(), 'opponent_board': not_current_player.board.show(), 'discardpile': discardpile.show(), 'left_in_deck': len(deck)}
+	return {'cards': current_player.show_cards(), 'board': current_player.board.show(), 'opponent_board': not_current_player.board.show(), 'discardpile': discardpile.show(), 'left_in_deck': len(deck), 'colors': COLORS}
 
-
-# SETUP CARDS
-
-numbers = [1, 1]
-numbers.extend(range(1,11))
 
 # SETUP DECK
 
 deck = []
 
-for color in colors:
-	for number in numbers:
+for color in COLORS:
+	for number in NUMBERS:
 		deck.append(Card(color, number))
 
 shuffle(deck)
 
-# CREATE THE TWO PLAYERS WITH THE DECK
-players = (Player(0), Player(1))
+# CREATE THE TWO players WITH THE DECK
+players = (Player(Player0()), Player(Player1()))
 
 # CREATE THE DISCARD PILE
 discardpile = DiscardPile()
@@ -239,5 +229,5 @@ while len(deck):
 	current_player = players[1] if current_player == players[0] else players[0]
 
 print 'Final Score:'
-print 'Player 1: '+str(players[0].score())
-print 'Player 2: '+str(players[1].score())
+print 'Player 1: ' + str(players[0].score())
+print 'Player 2: ' + str(players[1].score())
