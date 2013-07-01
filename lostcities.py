@@ -10,10 +10,8 @@ from danielai1 import Player as Player1
 
 COLORS = ('yellow', 'blue', 'white', 'green', 'red')
 
-NUMBERS = [1, 1]
-NUMBERS.extend(range(1,11))
 MULTIPLICATOR_NUMBER = 1
-
+NUMBERS = tuple([MULTIPLICATOR_NUMBER if i < 3 else i - 1 for i in xrange(12)])
 
 class Card:
 	def __init__(self, color, number):
