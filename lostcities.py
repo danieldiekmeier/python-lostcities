@@ -13,6 +13,10 @@ COLORS = ('yellow', 'blue', 'white', 'green', 'red')
 MULTIPLICATOR_NUMBER = 1
 NUMBERS = tuple([MULTIPLICATOR_NUMBER if i < 3 else i - 1 for i in xrange(12)])
 
+COLUMN_NEGATIVE = -20
+COLUMN_BONUS_CARDS = 8
+COLUMN_BONUS = 20
+
 class Card:
 	def __init__(self, color, number):
 		self.color = color
@@ -107,9 +111,9 @@ class Column:
 			else:
 				cards_value += card.number
 		if len(self.cards):
-			value = multiplicator * -20
+			value = multiplicator * COLUMN_NEGATIVE
 			value += multiplicator * cards_value
-			return value
+			return value if len(self.cards) < COLUMN_BONUS_CARDS else value + COLUMN_BONUS
 		return 0
 	def put(self, card):
 		self.cards.append(card)
@@ -193,7 +197,6 @@ while len(deck):
 			current_card = card
 			break
 	if put_decision['location'] == 0:
-		print current_card
 		current_player.put(current_card)
 	elif put_decision['location'] == 1:
 		current_player.discard(current_card)
