@@ -2,8 +2,9 @@
 
 from random import choice, shuffle
 
-import lcinput as player1
-import lcinput as player2
+#from lcinput import Player as Player0
+from danielai1 import Player as Player0
+from danielai1 import Player as Player1
 
 # CONFIG
 
@@ -17,28 +18,45 @@ class Card:
 		return self.__str__()
 	def __str__(self):
 		if self.number == 1:
-			return self.color+' multiplicator'
-		return self.color+' '+str(self.number)
+			return self.color + ' multiplicator'
+		return self.color + ' ' +str(self.number)
 
 class Player:
-	def __init__(self):
+	def __init__(self, player_number):
 		self.cards = []
 		for n in xrange(0,8):
 			self.draw()
 		self.board = Board()
+		if player_number == 0:
+			self.brain = Player0()
+		else:
+			self.brain = Player1()
 	def __repr__(self):
 		return self.__str__()
 	def __str__(self):
-		return str(self.score)+' points'
+		return str(self.score) + ' points'
 	def show_cards(self):
-		return self.cards
+		cards = dict()
+		for color in colors:
+			cards[color] = []
+		for card in self.cards:
+			cards[card.color].append(card.number)
+		for key in cards:
+
+			if cards[key] == []:
+				cards[key] = None
+		return cards
 	def score(self):
 		return self.board.score()
 	def put(self, card):
 		self.board.put(card)
+		self.cards.pop(self.cards.index(card))
 		self.draw()
 	def draw(self):
 		self.cards.append(deck.pop(0))
+	def discard(self, card):
+		discardpile.put(card)
+		self.cards.remove(card)
 
 class Board:
 	def __init__(self):
@@ -48,7 +66,12 @@ class Board:
 	def __repr__(self):
 		return self.__str__()
 	def __str__(self):
-		return 'this is a board'
+		return self.columns
+	def show(self):
+		columns = dict()
+		for column in self.columns:
+			columns[column.color] = column.show()
+		return columns
 	def score(self):
 		score = 0
 		for column in self.columns:
@@ -68,6 +91,13 @@ class Column:
 		return self.__str__()
 	def __str__(self):
 		return str(self.value()) + ' points'
+	def show(self):
+		if len(self.cards):
+			cards = []
+			for card in self.cards:
+				cards.append(card.number)
+			return cards
+		return None
 	def value(self):
 		multiplicator = 1
 		cards_value = 0
@@ -83,6 +113,62 @@ class Column:
 		return 0
 	def put(self, card):
 		self.cards.append(card)
+
+class DiscardPile:
+	def __init__(self):
+		self.stacks = []
+		for color in colors:
+			self.stacks.append(Stack(color))
+	def __repr__(self):
+		return self.__str__()
+	def __str__(self):
+		cards_in_stacks = []
+		for stack in self.stacks:
+			cards_in_stacks.append(stack.peek())
+		return str(cards_in_stacks)
+		# better repr/str later
+	def draw(self, color):
+		for stack in self.stacks:
+			if stack.color == color:
+				return stack.draw()
+	def put(self, card):
+		for stack in self.stacks:
+			if stack.color == card.color:
+				stack.put(card)
+		return True
+	def show(self):
+		stacks = dict()
+		for stack in self.stacks:
+			stacks[stack.color] = stack.show()
+		return stacks
+
+class Stack:
+	def __init__(self, color):
+		self.color = color
+		self.cards = []
+	def __repr__(self):
+		return self.__str__()
+	def __str__(self):
+		return 'this is the' + self.color + 'stack'
+	def draw(self):
+		return self.cards.pop()
+	def put(self, card):
+		self.cards.append(card)
+	def peek(self):
+		if len(self.cards):
+			return self.cards[-1]
+		else:
+			return None
+	def show(self):
+		if len(self.cards):
+			return self.cards[-1].number
+		else:
+			return None
+
+def status():
+	not_current_player = players[1] if current_player == players[0] else players[0]
+	return {'cards': current_player.show_cards(), 'board': current_player.board.show(), 'opponent_board': not_current_player.board.show(), 'discardpile': discardpile.show()}
+
 
 # SETUP CARDS
 
@@ -100,28 +186,47 @@ for color in colors:
 shuffle(deck)
 
 # CREATE THE TWO PLAYERS WITH THE DECK
-players = (Player(), Player())
+players = (Player(0), Player(1))
 
-print players[0].show_cards()
-print players[1].show_cards()
-
-print players[0].score()
-
-players[0].put(players[0].cards.pop(0))
-
-print players[0].score()
+# CREATE THE DISCARD PILE
+discardpile = DiscardPile()
 
 current_player = choice(players)
 
 while len(deck):
 	# THE GAME
+	not_current_player = players[1] if current_player == players[0] else players[0]
 
 	# ENTSCHEIDEN, WAS GELEGT WIRD
+	put_decision = current_player.brain.put(status())
+	for card in current_player.cards:
+		if card.color == put_decision['color'] and card.number == put_decision['number']:
+			current_card = card
+			break
+	if put_decision['location'] == 0:
+		print current_card
+		current_player.put(current_card)
+	elif put_decision['location'] == 1:
+		current_player.discard(current_card)
+	else:
+		print 'Not Valid'
+
 
 	# ENTSCHEIDEN, WAS GEZOGEN WIRD
+	draw_decision = current_player.brain.draw(status())
+
+	# STUFF
+	print 'Score:' + str(current_player.score())
+	print ''
+	print 'BOARD:'
+	print current_player.board.show()
+	print 'OTHER BOARD:'
+	print not_current_player.board.show()
+	print 'DISCARD:'
+	print discardpile.show()
+	print 'LEFT ON DECK'
+	print len(deck)
+	print ''
 
 	# ANDERER SPIELER IST DRAN
-	if current_player == players[0]:
-		current_player = players[1]
-	else:
-		current_player = players[0]
+	current_player = players[1] if current_player == players[0] else players[0]
