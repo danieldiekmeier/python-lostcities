@@ -51,9 +51,10 @@ class Player:
 	def put(self, card):
 		self.board.put(card)
 		self.cards.pop(self.cards.index(card))
-		self.draw()
 	def draw(self):
 		self.cards.append(deck.pop(0))
+	def pickup(self, color):
+		self.cards.append(discardpile.draw(color))
 	def discard(self, card):
 		discardpile.put(card)
 		self.cards.remove(card)
@@ -167,7 +168,7 @@ class Stack:
 
 def status():
 	not_current_player = players[1] if current_player == players[0] else players[0]
-	return {'cards': current_player.show_cards(), 'board': current_player.board.show(), 'opponent_board': not_current_player.board.show(), 'discardpile': discardpile.show()}
+	return {'cards': current_player.show_cards(), 'board': current_player.board.show(), 'opponent_board': not_current_player.board.show(), 'discardpile': discardpile.show(), 'left_in_deck': len(deck)}
 
 
 # SETUP CARDS
@@ -214,6 +215,12 @@ while len(deck):
 
 	# ENTSCHEIDEN, WAS GEZOGEN WIRD
 	draw_decision = current_player.brain.draw(status())
+	if draw_decision['location'] == 0:
+		current_player.draw()
+	elif draw_decision['location'] == 1:
+		current_player.pickup(draw_decision['color'])
+	else:
+		print 'Not Valid'
 
 	# STUFF
 	print 'Score:' + str(current_player.score())
@@ -230,3 +237,7 @@ while len(deck):
 
 	# ANDERER SPIELER IST DRAN
 	current_player = players[1] if current_player == players[0] else players[0]
+
+print 'Final Score:'
+print 'Player 1: '+str(players[0].score())
+print 'Player 2: '+str(players[1].score())
